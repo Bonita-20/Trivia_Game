@@ -1,6 +1,8 @@
 import random
+import copy
+import string
 
-questions = [
+question_pool = [
     {
         "question": "What is 8 * 7?",
         "options": ["48", "54", "56", "64"],
@@ -103,66 +105,80 @@ questions = [
     }
 ]
 
-# this function takes the user answer and validate
-def answer_validation():
+def display_question(question):
+    opt = string.ascii_uppercase[:len(question['options'])]
+    print(question['question'])
+    for index, option in enumerate(question["options"]):
+        print(opt[index], option)
+        
+def answer_validation(question):
+    valid_options = string.ascii_uppercase[:len(question['options'])]
     while True:
-        answer = input("Select an option (A - D): ").strip().upper()
-        if answer == 'A':
-            return 0
-        elif answer == 'B':
-            return 1
-        elif answer == 'C':
-            return 2
-        elif answer == 'D':
-            return 3
+        answer = input(f"Select an option {valid_options}: ").strip().upper()
+        if answer in valid_options:
+            return valid_options.index(answer)
         else:
-            print("Invalid answer. Please select A, B, C, or D.")
+            print(f"Invalid answer. Please select between {valid_options}.")
+
+def check_answer(question, answer):
+    return question['options'][answer] == question['answer']
+
+def display_results(score, total_questions):
+    print('-' * 20)
+    print("QUIZ COMPLETE")
+    print('-' * 20)
+    percentage = (score / total_questions) * 100
+    print(f"Your final score: {score}/{total_questions}")
+    print(f"Percentage: {percentage}%")
+    
+    if percentage >= 90:
+        print("Excellent.")
+    elif percentage >= 70:
+        print("Very Good.")
+    elif percentage >= 50:
+        print("Good.")
+    else:
+        print("Poor. \nKeep Practicing")
+
+def play_again():
+    while True:
+        play = input("Would you like to play again? (y/n)").strip().lower()
+        if play == 'y':
+            return True
+        elif play == 'n':
+            return False
+        else:
+            print("Enter a valid response (y or n).")
 
 def main():
     while True:
-        random.shuffle(questions)
-
+        questions = copy.deepcopy(random.sample(question_pool, 5))
+        for question in questions:
+            random.shuffle(question['options'])
         score = 0
 
         for question_num, question in enumerate(questions, start=1):
             print('-' * 20)
             print(f"Question {question_num} of {len(questions)}")
             print('-' * 20)
-            print(question['question'])
-            opt = ['A', 'B', 'C', 'D']
-            for index, option in enumerate(question["options"]):
-                print(opt[index], option)
-            answer = answer_validation()
-            if question['options'][answer] == question['answer']:
+
+            display_question(question)
+
+            answer = answer_validation(question)
+
+            if check_answer(question, answer):
                 score += 1
                 print("\nCORRECT!!!")
                 print()
             else:
                 print(f"\nWRONG!!!\nCorrect answer is: {question['answer']}.")
                 print()
-        print('-' * 20)
-        print("QUIZ COMPLETE")
-        print('-' * 20)
-        percentage = (score / len(questions)) * 100
-        print(f"Your final score: {score}/{len(questions)}")
-        print(f"Percentage: {percentage}%")
 
-        if percentage >= 90:
-            print("Excellent.")
-        elif percentage >= 70:
-            print("Very Good.")
-        elif percentage >= 50:
-            print("Good.")
-        else:
-            print("Poor. \nKeep Practicing")
-        while True:
-            play_again = input("Would you like to play again? (y/n)").strip().lower()
-            if play_again == 'y':
-                break
-            elif play_again == 'n':
-                return
-            else:
-                print("Enter a valid response (y or n).")
+        display_results(score, len(questions))
+
+        if play_again():
+            continue
+        break
 
 if __name__ == '__main__':
     main()
