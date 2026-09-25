@@ -1,6 +1,7 @@
 import random
 import copy
 import string
+import os
 
 question_pool = [
     {
@@ -109,16 +110,16 @@ def display_question(question):
     opt = string.ascii_uppercase[:len(question['options'])]
     print(question['question'])
     for index, option in enumerate(question["options"]):
-        print(opt[index], option)
+        print(f"{opt[index]}. {option}")
         
 def answer_validation(question):
     valid_options = string.ascii_uppercase[:len(question['options'])]
     while True:
-        answer = input(f"Select an option {valid_options}: ").strip().upper()
+        answer = input(f"Select an option {valid_options[0]}-{valid_options[-1]}: ").strip().upper()
         if answer in valid_options:
             return valid_options.index(answer)
         else:
-            print(f"Invalid answer. Please select between {valid_options}.")
+            print(f"Invalid answer. Please select between {valid_options[0]}-{valid_options[-1]}.")
 
 def check_answer(question, answer):
     return question['options'][answer] == question['answer']
@@ -150,15 +151,22 @@ def play_again():
         else:
             print("Enter a valid response (y or n).")
 
+def clear_screen():
+    os.system('cls' if os.name == "nt" else 'clear')
+
+def pause():
+    input("Press Enter to continue...")
 def main():
     while True:
         questions = copy.deepcopy(random.sample(question_pool, 5))
         for question in questions:
             random.shuffle(question['options'])
         score = 0
-
         for question_num, question in enumerate(questions, start=1):
-            print('-' * 20)
+            print("=" * 20)
+            print("MATHEMATICS QUIZ")
+            print("=" * 20)
+            print()
             print(f"Question {question_num} of {len(questions)}")
             print('-' * 20)
 
@@ -173,7 +181,8 @@ def main():
             else:
                 print(f"\nWRONG!!!\nCorrect answer is: {question['answer']}.")
                 print()
-
+            pause()
+            clear_screen()
         display_results(score, len(questions))
 
         if play_again():
